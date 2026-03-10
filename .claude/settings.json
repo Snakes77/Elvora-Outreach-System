@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": ["Read", "Write", "Bash"],
+    "deny": []
+  },
+  "hooks": {
+    "PreToolUse": [
+      { "matcher": "Bash", "command": ".claude/hooks/pre-bash.sh" }
+    ],
+    "PostToolUse": [
+      { "matcher": "Write", "command": ".claude/hooks/post-write.sh" }
+    ],
+    "Stop": [
+      { "command": ".claude/hooks/on-stop.sh" }
+    ]
+  }
+}
