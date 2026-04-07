@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Elvora Outreach System 🚀
+### Automated CQC-Targeted Marketing & Lead Generation
 
-## Getting Started
+A high-sophistication lead generation and outreach engine designed specifically for the UK care sector. This system automates the end-to-end process of identifying care providers from the CQC (Care Quality Commission) API, enriching them with performance metadata, and executing hyper-personalized email campaigns anchored in the **Single Assessment Framework (SAF)**.
 
-First, run the development server:
+---
 
+## 🌟 Core Capabilities
+
+### 1. The Super Sync Engine (`/scripts/sync-cqc.ts`)
+A robust data acquisition layer that deep-scans the CQC API using **Postcode Prefix Targeting** (e.g., NG, LE, DE, B, WR) to build high-density regional lead lists.
+- **SAF Data Enrichment**: Automatically maps the 34 new "Quality Statements" and 5 Key Questions (Safe, Effective, Caring, Responsive, Well led).
+- **Direct Boarding**: Supports the `--location=ID` flag for instant onboarding of high-value individual targets.
+- **Credit Guard**: Integrated with AnyMailFinder APIs to track and protect discovery quotas.
+
+### 2. Precision Outreach Engine (`/lib/outreach-templates.ts`)
+An 8-week automated email sequence designed by Elvora Consulting to nurture leads from cold to consultation.
+- **Dynamic Anchoring**: Every email is dynamically anchored to the lead's specific CQC performance (e.g., focusing on a "Requires Improvement" rating in the "Safe" category).
+- **Melissa Meakin Persona**: Strictly human-first, peer-to-peer tone using professional UK English.
+- **Multi-Sender Rotation**: 3-inbox rotation strategy (Mailforge) to ensure maximum deliverability and domain reputation protection.
+
+### 3. Engagement Guard & Webhooks
+Outreach is a "Stop on Interaction" system. The suite includes real-time webhook handlers for:
+- **Resend Webhooks**: Pauses outreach upon email opens, clicks, or replies.
+- **Microsoft/Google Bookings**: Instantly identifies consultation bookings to ensure no redundant follow-ups are sent.
+
+### 4. Branded CQC Ratings Widget (`/app/api/widget/`)
+A premium, glassmorphic UI value-add offer for engaged prospects.
+- **Premium Design**: High-performance "Elvora Insights" badge for care home websites.
+- **Real-Time Data**: Served via a secure public API endpoint and lightweight JS loader.
+
+---
+
+## 🎨 Design & Style Standards
+
+This project adheres to the strict **[Elvora Style Guide](STYLE_GUIDE.md)**:
+- **UK English Only**: Strictly `-ise` spellings (e.g., personalisation).
+- **Zero Hyphen Policy**: Punctuation is kept clean and professional; hyphens are avoided in all user-facing copy (e.g., `Well led` vs `Well-led`).
+- **Anti-Word Filter**: No AI-isms (e.g., no "delve", "robust", "leverage", or "hurdle").
+
+---
+
+## 🛠️ Technical Stack
+- **Framework**: Next.js 16 (App Router)
+- **Database**: Supabase (PostgreSQL) with Admin Client access.
+- **Email API**: Resend
+- **Workflow**: `tsx` for high-speed script execution.
+
+---
+
+## 🚀 Getting Started
+
+### 1. Environment Configuration
+Create a `.env.local` file with the following keys:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+NEXT_PUBLIC_SUPABASE_URL=...
+SUPABASE_SERVICE_ROLE_KEY=...
+CQC_API_KEY=...
+RESEND_API_KEY=...
+CRON_SECRET=...
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Synchronize Data
+To populate the database with Midlands targets:
+```bash
+npx tsx scripts/sync-cqc.ts
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Trigger Outreach
+The outreach cycle is managed via a cron job at `/api/cron/outreach`. In production, this should be triggered daily.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Developed with ❤️ by Elvora Consulting.
+*Care Quality Excellence.*
