@@ -1,6 +1,6 @@
 import * as cheerio from 'cheerio';
 
-const CQC_API_BASE = process.env.CQC_API_BASE || 'https://api.cqc.org.uk/public/v1';
+const CQC_API_BASE = process.env.CQC_API_BASE || 'https://api.service.cqc.org.uk/public/v1';
 
 export type CQCRating = 'Outstanding' | 'Good' | 'Requires Improvement' | 'Inadequate' | 'Not Rated';
 
@@ -11,8 +11,23 @@ export interface CQCLocation {
   postalCode: string;
   onspdRegion?: string;
   onspdLocalAuthority?: string;
+  region?: string;
+  postalAddressRegion?: string;
+  careHome?: string;
+  contacts?: Array<{
+    personGivenName?: string;
+    personFamilyName?: string;
+    personTitle?: string;
+  }>;
+  website?: string;
+  providerName?: string;
+  brandName?: string;
+  postalAddressLine1?: string;
+  postalAddressTownCity?: string;
+  localAuthority?: string;
+  type?: string;
   currentRatings?: {
-    overall?: { rating?: string; reportDate?: string };
+    overall?: { rating?: string; reportDate?: string; keyQuestionRatings?: Array<any> };
     keyQuestions?: Array<{ name: string; rating: string }>;
   };
   relationships?: Array<{ relatedLocationId: string }>;
@@ -21,14 +36,15 @@ export interface CQCLocation {
 export interface EnrichmentData {
   tier: number;
   priorityScore: number;
-  safe: string;
+  safe: string; // Rating string
   effective: string;
   caring: string;
   responsive: string;
   wellLed: string;
   daysSinceInspection?: number;
   isOverdue: boolean;
-  notes?: string;
+  notes?: string; // This holds the DEEP context scraped findings
+  findings?: Record<string, string>; // Optional structured findings
 }
 
 /**
@@ -194,28 +210,68 @@ export async function getCQCProviderDetails(providerId: string): Promise<any> {
  * such as the exact text about "Well led" or "Safe".
  */
 export async function scrapeCQCDetailedInspection(locationId: string): Promise<Record<string, string>> {
-  // CQC typical profile URL
-  const url = `https://www.cqc.org.uk/location/${locationId}`;
-  const response = await fetch(url);
-  const html = await response.text();
-  const $ = cheerio.load(html);
-
   const findings: Record<string, string> = {};
 
-  // For example, we might find sections for 'Safe', 'Effective', 'Caring', etc.
-  // Note: the exact selectors depend on CQC website structure which changes.
-  // This is a robust attempt to grab text summaries next to the quality flags.
-  
-  $('.key-question-summary').each((_, el) => {
-    const title = $(el).find('h3').text().trim().toLowerCase(); // e.g., 'safe' or 'well-led'
-    const text = $(el).find('.summary-text').text().trim();
-    // Normalise 'well-led' to 'well_led' to match DB styling, no hyphens later
-    if (title.includes('safe')) findings['safe'] = text;
-    if (title.includes('effective')) findings['effective'] = text;
-    if (title.includes('caring')) findings['caring'] = text;
-    if (title.includes('responsive')) findings['responsive'] = text;
-    if (title.includes('well')) findings['well_led'] = text; // well-led or well led
-  });
+  try {
+    // 1. Try the modern inspection summary layout
+    const summaryUrl = `${CQC_API_BASE.replace('/api.cqc.org.uk/public/v1', 'https://www.cqc.org.uk')}/location/${locationId}/inspection-summary`.replace('https://api.cqc.org.uk/public/v1', 'https://www.cqc.org.uk');
+    // Using simple replace just in case, but let's be explicit:
+    const url = `https://www.cqc.org.uk/location/${locationId}/inspection-summary`;
+    
+    let response = await fetch(url);
+    if (response.ok) {
+        const html = await response.text();
+        const $ = cheerio.load(html);
+
+        let currentSection = '';
+        $('*').each((i, elOrig) => {
+            const el = elOrig as any;
+            const tag = el.tagName;
+            const text = $(el).text().trim();
+            if (!text) return;
+
+            if (tag === 'h2') {
+                currentSection = ''; // Stop when we hit a new major section
+            } else if (tag === 'h3' && $(el).hasClass('rating__title')) {
+                const lowerTitles = text.toLowerCase();
+                if (lowerTitles.includes('our current view')) currentSection = 'current_view';
+                else if (lowerTitles.includes("people's experience")) currentSection = 'peoples_experience';
+                else currentSection = '';
+            } else if (tag === 'p' && currentSection && !$(el).hasClass('rating__value')) {
+                if (!text.startsWith('Updated') && !text.startsWith('Date of assessment') && !text.startsWith('Read the latest assessment') && text.length > 50) {
+                    findings[currentSection] = (findings[currentSection] || '') + ' ' + text;
+                }
+            }
+        });
+
+        // Trim up the values
+        for (const key of Object.keys(findings)) {
+            findings[key] = findings[key].trim().replace(/\s+/g, ' ');
+        }
+    }
+
+    // 2. Fallback / supplement with the old layout if the modern one didn't yield much
+    if (Object.keys(findings).length === 0) {
+        const fallbackUrl = `https://www.cqc.org.uk/location/${locationId}`;
+        const fallbackRes = await fetch(fallbackUrl);
+        if (fallbackRes.ok) {
+            const html = await fallbackRes.text();
+            const $ = cheerio.load(html);
+
+            $('.key-question-summary').each((_, el) => {
+              const title = $(el).find('h3').text().trim().toLowerCase();
+              const text = $(el).find('.summary-text').text().trim();
+              if (title.includes('safe')) findings['safe'] = text;
+              if (title.includes('effective')) findings['effective'] = text;
+              if (title.includes('caring')) findings['caring'] = text;
+              if (title.includes('responsive')) findings['responsive'] = text;
+              if (title.includes('well')) findings['well_led'] = text;
+            });
+        }
+    }
+  } catch (error) {
+    console.warn(`[WARN] Scraper failed for location ${locationId}:`, error);
+  }
 
   return findings;
 }

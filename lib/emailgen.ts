@@ -21,16 +21,16 @@ const ANTI_WORDS = [
   'cutting-edge', 'innovative', 'navigating', 'tapestry', 'journey'
 ];
 
-const SYSTEM_PROMPT = `You are Melissa Meakin, a highly experienced Care Consultant based in the UK. 
-You are writing an initial outreach email to a care home provider whose CQC ratings are poor or overdue.
+const SYSTEM_PROMPT = `You are Melissa Meakin, a highly experienced Care Consultant based in the UK (Nottingham/Midlands). 
+You specialise in helping care homes improve their CQC ratings, especially under the new Single Assessment Framework (SAF).
 
-STRICT RULES:
+STRICT WRITING RULES:
 1. USE UK ENGLISH ONLY (e.g., specialise, recognise, programme, colour).
-2. DO NOT USE ANY HYPHENS. "Well-led" MUST be written as "Well led". Always avoid hyphens in compound adjectives.
-3. DO NOT USE ANY OF THESE AI BUZZWORDS: ${ANTI_WORDS.join(', ')}.
-4. Be professional, concise, empathetic, and direct. Do not sound like a machine.
-5. Focus on the core pain points: the new Single Assessment Framework (SAF), documentation gaps, Mock Inspections, and recruitment issues.
-6. The CTA will be appended automatically. Merely sign off naturally.`;
+2. NO HYPHENS. "Well-led" MUST be written as "Well led". Avoid hyphens in adjectives.
+3. ABSOLUTELY NO AI BUZZWORDS: ${ANTI_WORDS.join(', ')}. No "delve", no "robust", no "tapestry".
+4. Be professional yet warm and supportive. You are a human, not a bot.
+5. Keep paragraphs short (1-3 sentences) for better readability on mobile.
+6. The CTA and Sign-off are provided by the template. Just write the core narrative message.`;
 
 /**
  * Generates a personalised email body using OpenAI gpt-4o-mini.
@@ -45,14 +45,25 @@ export async function generateBespokeEmail(
     return null;
   }
 
-  const prompt = `Write the body of an outreach email for Phase ${phase} of our sequence.
-Provider Name: ${provider.name}
-Overall Rating: ${enrichment.tier === 3 ? 'Requires Improvement' : enrichment.tier === 4 ? 'Inadequate' : 'Good/Outstanding but Overdue'}
-Safe Rating: ${enrichment.safe || 'Not Rated'}
-Well led Rating: ${enrichment.wellLed || 'Not Rated'}
-Context details: ${enrichment.notes || 'None'}
+  const prompt = `Write the core narrative for Phase ${phase} of an outreach sequence.
+Care Home: ${provider.name}
+Location: ${provider.postalAddressTownCity || 'Midlands'}
+Ratings:
+- Safe: ${enrichment.safe}
+- Well led: ${enrichment.wellLed}
+- Effective: ${enrichment.effective}
+- Caring: ${enrichment.caring}
+- Responsive: ${enrichment.responsive}
 
-Please write 3 concise paragraphs addressing their specific situation based on the CQC ratings above. Keep it friendly and supportive. Mention you help Midlands providers. Emphasise how turning this around can help with staff recruitment or inspector confidence. Write ONLY the email body (no subject line, no greeting like "Hi Name,", no sign-off like "Best, Melissa", just the core text).`;
+Deep Context Findings (Scraped from CQC "Our current view" / "People's experience"):
+${enrichment.notes || 'No specific findings scraped.'}
+
+Sequence Objective:
+- Phase 1: The 'Sniper' approach. Acknowledge their situation with empathy. Mention specific findings from their report (e.g. medicines, governance, etc.).
+- Goal: Demonstrate we have actually read their latest CQC data and understand their local Midlands context.
+- Tone: Not critical, but "here to help solve these specific headaches". Mention staff recruitment or inspector confidence.
+
+Write 3 short paragraphs. Include a natural opening relative to their CQC assessment. Do NOT include a subject line, greeting (Hi...), or sign-off. ONLY the body text.`;
 
   try {
     const completion = await openai.chat.completions.create({
@@ -62,14 +73,14 @@ Please write 3 concise paragraphs addressing their specific situation based on t
         { role: 'user', content: prompt }
       ],
       temperature: 0.7,
-      max_tokens: 400
+      max_tokens: 500
     });
 
     let generatedText = completion.choices[0]?.message?.content || '';
     
-    // Post-processing safety net
-    generatedText = generatedText.replace(/-/g, ' '); // No hyphens rule brute-force fallback
-    // Replace markdown bold just in case
+    // Post-processing: only fix the specific CQC terminology; never strip all hyphens
+    generatedText = generatedText.replace(/Well-led/g, 'Well led');
+    generatedText = generatedText.replace(/well-led/g, 'well led');
     
     return generatedText;
   } catch (error) {

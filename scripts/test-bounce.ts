@@ -1,29 +1,28 @@
-import dotenv from 'dotenv';
-dotenv.config({ path: '.env.local' });
-import { Resend } from 'resend';
+import { loadEnvConfig } from '@next/env';
+loadEnvConfig(process.cwd());
 
-const resend = new Resend(process.env.RESEND_API_KEY!);
+import { sendOutreachEmail } from '../lib/resend';
+
+// Bare-bones deliverability check — sends a plain text email and reports the Resend event status.
+// Sending routes through lib/resend.ts — .org domain rotation, never .co.uk.
 
 async function run() {
-    console.log('Sending bare-bones test to see if content is triggering the bounce...');
-    const { data, error } = await resend.emails.send({
-        from: 'Melissa <melissa@elvoraconsulting.co.uk>',
-        to: 'paul@staxxd.co.uk',
-        subject: 'Ping from Elvora System',
-        text: 'This is a secure connection test. Please reply if received.'
-    });
+  console.log('Sending deliverability test...');
 
-    if (error) {
-        console.error('Error:', error);
-    } else {
-        console.log('Sent ID:', data?.id);
-        
-        // Wait 5 seconds and poll status to see if it bounces instantly
-        console.log('Waiting 5 seconds to check bounce status...');
-        await new Promise(r => setTimeout(r, 5000));
-        
-        const details = await resend.emails.get(data!.id);
-        console.log('Current Status:', details.data?.last_event);
-    }
+  const result = await sendOutreachEmail(
+    'test-bounce-check',
+    'bounce_test',
+    'paul@staxxd.co.uk',
+    'Connection test from Elvora',
+    '<p>This is a connection test. Please reply if received.</p>',
+    'This is a connection test. Please reply if received.'
+  );
+
+  if (result.success) {
+    console.log(`Sent via ${result.domainUsed}. Resend ID: ${result.resendId}`);
+  } else {
+    console.error('Failed:', result.error);
+  }
 }
-run();
+
+run().catch(console.error);

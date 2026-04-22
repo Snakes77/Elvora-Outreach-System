@@ -1,5 +1,3 @@
-const ANYMAIL_API_KEY = process.env.ANYMAIL_API_KEY || '';
-
 export interface EmailEnrichmentResult {
   email: string | null;
   status: 'found' | 'not_found' | 'error';
@@ -20,6 +18,8 @@ export async function findEmailForProvider(
   domain?: string,
   managerName?: string
 ): Promise<EmailEnrichmentResult> {
+  const ANYMAIL_API_KEY = process.env.ANYMAIL_API_KEY || '';
+  
   if (!ANYMAIL_API_KEY) {
     console.warn("ANYMAIL_API_KEY is not set. Skipping enrichment.");
     return { email: null, status: 'error' };
@@ -32,7 +32,7 @@ export async function findEmailForProvider(
     if (managerName) payload.full_name = managerName;
 
     // Using the typical V5 search endpoint for AnyMail Finder
-    const response = await fetch('https://api.anymailfinder.com/v5.0/search.json', {
+    const response = await fetch('https://api.anymailfinder.com/v5.0/search/person.json', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -69,5 +69,46 @@ export async function findEmailForProvider(
   } catch (error) {
     console.error("Error during email enrichment with AnyMail:", error);
     return { email: null, status: 'error' };
+  }
+}
+
+/**
+ * verifyEmail checks a specific email address for validity using AnyMail Finder's 
+ * v5.1 verification endpoint. This is more credit-efficient than searching.
+ * 
+ * @param email The email address to verify
+ */
+export async function verifyEmail(email: string): Promise<{ status: 'valid' | 'invalid' | 'risky'; score?: number }> {
+  const ANYMAIL_API_KEY = process.env.ANYMAIL_API_KEY || '';
+  
+  if (!ANYMAIL_API_KEY) {
+    console.warn("ANYMAIL_API_KEY is not set. Skipping verification.");
+    return { status: 'risky' };
+  }
+
+  try {
+    const response = await fetch('https://api.anymailfinder.com/v5.1/verify-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Api-Key': ANYMAIL_API_KEY
+      },
+      body: JSON.stringify({ email })
+    });
+
+    if (!response.ok) {
+      console.error('AnyMail Verification API error:', await response.text());
+      return { status: 'risky' };
+    }
+
+    const data = await response.json();
+    return {
+      status: data.email_status as any, // 'valid', 'invalid', 'risky'
+      score: data.score
+    };
+
+  } catch (error) {
+    console.error("Error during email verification:", error);
+    return { status: 'risky' };
   }
 }

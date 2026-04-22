@@ -1,7 +1,18 @@
 import { Resend } from 'resend';
 import { supabaseAdmin } from './supabase-admin';
 
-const resend = new Resend(process.env.RESEND_API_KEY || '');
+// Lazy initialisation — do NOT instantiate at module level.
+// Scripts load env vars after importing this module, so reading RESEND_API_KEY
+// at import time would always be undefined.
+let _resend: Resend | null = null;
+function getResend(): Resend {
+  if (!_resend) {
+    const key = process.env.RESEND_API_KEY;
+    if (!key) throw new Error('RESEND_API_KEY is not set in environment');
+    _resend = new Resend(key);
+  }
+  return _resend;
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // DOMAIN POLICY
@@ -91,13 +102,18 @@ export async function sendOutreachEmail(
     const activeDomain = await getOptimalSendingDomain();
     const fromAddress = `Melissa Meakin <melissa@${activeDomain}>`;
 
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await getResend().emails.send({
       from: fromAddress,
       to: [toEmail],
       replyTo: [REPLY_TO],
       subject,
       html: htmlContent,
       ...(textContent ? { text: textContent } : {}),
+      // Tags are required for the Resend webhook to route click/unsubscribe events back to a lead
+      tags: [
+        { name: 'lead_id', value: leadId },
+        { name: 'step_id', value: stepId },
+      ],
     });
 
     if (error) {

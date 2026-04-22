@@ -16,9 +16,9 @@ const RATING_COLORS: Record<string, string> = {
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { locationId: string } }
+  context: { params: Promise<{ locationId: string }> }
 ) {
-  const { locationId } = params;
+  const { locationId } = await context.params;
 
   // 1. Fetch lead from Supabase
   const { data: lead, error } = await supabase
@@ -53,7 +53,7 @@ export async function GET(
           box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
           max-width: 280px;
           color: #1F2937;
-          border-bottom: 4px solid ${RATING_COLORS[lead.current_rating || 'Not rated']};
+          border-bottom: 4px solid ${RATING_COLORS[lead.overall_rating || 'Not rated']};
           transition: transform 0.2s ease;
         }
         .elvora-widget:hover { transform: translateY(-2px); }
@@ -63,7 +63,7 @@ export async function GET(
         .rating-value { 
           font-size: 20px; 
           font-weight: 600; 
-          color: ${RATING_COLORS[lead.current_rating || 'Not rated']};
+          color: ${RATING_COLORS[lead.overall_rating || 'Not rated']};
           margin-bottom: 12px;
         }
         .details { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 10px; margin-bottom: 12px; }
@@ -78,7 +78,7 @@ export async function GET(
         <div class="logo">ELVORA INSIGHTS</div>
         <div class="name">${lead.name}</div>
         <div class="rating-label">Overall CQC Quality</div>
-        <div class="rating-value">${lead.current_rating || 'Not Yet Rated'}</div>
+        <div class="rating-value">${lead.overall_rating || 'Not Yet Rated'}</div>
         
         <div class="details">
           <div class="detail-item">

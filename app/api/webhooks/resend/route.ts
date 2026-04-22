@@ -1,10 +1,36 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
+import crypto from 'crypto';
+
+// Verify Resend webhook signature to prevent spoofed events.
+// Set RESEND_WEBHOOK_SECRET in env vars from your Resend dashboard → Webhooks → Signing Secret.
+function verifyResendSignature(rawBody: string, signatureHeader: string | null): boolean {
+    const secret = process.env.RESEND_WEBHOOK_SECRET;
+    if (!secret) return true; // Skip check if not configured (dev / local)
+    if (!signatureHeader) return false;
+
+    const expected = crypto
+        .createHmac('sha256', secret)
+        .update(rawBody)
+        .digest('hex');
+
+    return crypto.timingSafeEqual(
+        Buffer.from(expected, 'hex'),
+        Buffer.from(signatureHeader, 'hex')
+    );
+}
 
 // Resend sends webhooks as POST requests
 export async function POST(request: Request) {
     try {
-        const payload = await request.json();
+        const rawBody = await request.text();
+
+        if (!verifyResendSignature(rawBody, request.headers.get('svix-signature'))) {
+            console.error('[webhook] Invalid Resend signature — request rejected.');
+            return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
+        }
+
+        const payload = JSON.parse(rawBody);
 
         // Verify it's an email.received event (inbound email routing)
         if (payload.type === 'email.received') {

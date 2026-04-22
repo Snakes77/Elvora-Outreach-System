@@ -5,8 +5,8 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 async function sendTestEmail() {
     try {
         const data = await resend.emails.send({
-            from: 'Melissa <melissa@elvoraconsulting.co.uk>',
-            to: ['melissa@elvoraconsulting.co.uk'],
+            from: 'Melissa <melissa@myelvoraconsulting.org>',
+            to: ['paul@staxxd.co.uk'],
             subject: 'Have a magical day!',
             html: `
         <div style="font-family: sans-serif; color: #333;">
