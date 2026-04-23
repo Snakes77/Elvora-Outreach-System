@@ -127,7 +127,7 @@ export async function sendOutreachEmail(
       .insert({
         lead_id: leadId,
         step_id: stepId,
-        resend_id: data?.id,
+        // resend_id: data?.id, // schema error PGRST204
         sending_domain: activeDomain,
         status: 'sent',
         sent_at: new Date().toISOString(),
