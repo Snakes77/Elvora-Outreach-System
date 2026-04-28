@@ -19,14 +19,14 @@ async function markPreEnrichedLeads(): Promise<number> {
   if (error || !leads) return 0;
 
   // Filter to leads where email is a real address (not a pending placeholder)
-  const realEmails = leads.filter(l => {
+  const realEmails = leads.filter((l: any) => {
     const email = (l.email || '').trim();
     return email.length > 0 && !email.startsWith('pending_') && email.includes('@');
   });
 
   if (realEmails.length === 0) return 0;
 
-  const ids = realEmails.map(l => l.id);
+  const ids = realEmails.map((l: any) => l.id);
   await supabaseAdmin
     .from('leads')
     .update({
@@ -117,22 +117,22 @@ export async function runFullEnrichmentPipeline(): Promise<PipelineReport> {
     .select('id, email, email_enrichment_status, cqc_location_id, status');
 
   const totalLeads = allLeads?.length || 0;
-  const withEmail = allLeads?.filter(l => l.email && !l.email.startsWith('pending_')).length || 0;
+  const withEmail = allLeads?.filter((l: any) => l.email && !l.email.startsWith('pending_')).length || 0;
   const readyToSend = allLeads?.filter(
-    l => l.email && !l.email.startsWith('pending_') && l.status?.toLowerCase() === 'active'
+    (l: any) => l.email && !l.email.startsWith('pending_') && l.status?.toLowerCase() === 'active'
   ).length || 0;
   const missingEmail = allLeads?.filter(
-    l => !l.email || l.email.startsWith('pending_')
+    (l: any) => !l.email || l.email.startsWith('pending_')
   ).length || 0;
 
   // Flag any leads that couldn't be enriched and need attention
   const needsManualAttention: string[] = (allLeads || [])
     .filter(
-      l =>
+      (l: any) =>
         l.cqc_location_id &&
         (!l.email || l.email.startsWith('pending_'))
     )
-    .map(l => l.id);
+    .map((l: any) => l.id);
 
   const completedAt = new Date().toISOString();
   console.log('\n[orchestrator] ━━━ Pipeline complete ━━━');
