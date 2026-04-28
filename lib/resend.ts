@@ -102,13 +102,17 @@ export async function sendOutreachEmail(
     const activeDomain = await getOptimalSendingDomain();
     const fromAddress = `Melissa Meakin <melissa@${activeDomain}>`;
 
+    // Strictly enforce domain matching across all embedded HTML assets
+    const finalHtmlContent = htmlContent.replace(/\{\{SENDING_DOMAIN\}\}/g, activeDomain);
+    const finalTextContent = textContent ? textContent.replace(/\{\{SENDING_DOMAIN\}\}/g, activeDomain) : undefined;
+
     const { data, error } = await getResend().emails.send({
       from: fromAddress,
       to: [toEmail],
       replyTo: [REPLY_TO],
       subject,
-      html: htmlContent,
-      ...(textContent ? { text: textContent } : {}),
+      html: finalHtmlContent,
+      ...(finalTextContent ? { text: finalTextContent } : {}),
       // Tags are required for the Resend webhook to route click/unsubscribe events back to a lead
       tags: [
         { name: 'lead_id', value: leadId },

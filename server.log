@@ -1,0 +1,122 @@
+
+> elvora-outreach-system@0.1.0 dev
+> next dev
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.7:3000
+- Environments: .env.local
+
+✓ Starting...
+✓ Ready in 1134ms
+◇ injected env (0) from .env.local // tip: ⌘ suppress logs { quiet: true }
+[SAF Sequence] Booting isolated SAF Sequence Runner...
+[SAF Sequence] Extracted 15 SAF lead(s) due.
+Failed to log email_send in DB: {
+  code: 'PGRST204',
+  details: null,
+  hint: null,
+  message: "Could not find the 'resend_id' column of 'email_sends' in the schema cache"
+}
+[SAF Sequence] Sent Phase 1/5 to 8b74d5f8-ebae-4589-b2b5-3d1d0721d40e via myelvoraconsulting.org
+Failed to log email_send in DB: {
+  code: 'PGRST204',
+  details: null,
+  hint: null,
+  message: "Could not find the 'resend_id' column of 'email_sends' in the schema cache"
+}
+[SAF Sequence] Sent Phase 1/5 to c9c8d03a-22e7-48bc-856c-24cd57af8ecf via myelvoraconsulting.org
+Failed to log email_send in DB: {
+  code: 'PGRST204',
+  details: null,
+  hint: null,
+  message: "Could not find the 'resend_id' column of 'email_sends' in the schema cache"
+}
+[SAF Sequence] Sent Phase 1/5 to 799cea2a-adf7-4d8b-8ff1-b02717c9d19d via myelvoraconsulting.org
+Failed to log email_send in DB: {
+  code: 'PGRST204',
+  details: null,
+  hint: null,
+  message: "Could not find the 'resend_id' column of 'email_sends' in the schema cache"
+}
+[SAF Sequence] Sent Phase 1/5 to a19d518d-5c3b-417b-9bc1-62ab0f4ccfa3 via myelvoraconsulting.org
+Failed to log email_send in DB: {
+  code: 'PGRST204',
+  details: null,
+  hint: null,
+  message: "Could not find the 'resend_id' column of 'email_sends' in the schema cache"
+}
+[SAF Sequence] Sent Phase 1/5 to ef3260b2-849e-4c18-945d-b4dda88080be via myelvoraconsulting.org
+Failed to log email_send in DB: {
+  code: 'PGRST204',
+  details: null,
+  hint: null,
+  message: "Could not find the 'resend_id' column of 'email_sends' in the schema cache"
+}
+[SAF Sequence] Sent Phase 1/5 to a69e4ceb-2a01-45b0-81f7-ebfb6353a28b via myelvoraconsulting.org
+Failed to log email_send in DB: {
+  code: 'PGRST204',
+  details: null,
+  hint: null,
+  message: "Could not find the 'resend_id' column of 'email_sends' in the schema cache"
+}
+[SAF Sequence] Sent Phase 1/5 to 95c1df76-bbb5-43c9-b83b-a8a479cb1dcd via myelvoraconsulting.org
+Failed to log email_send in DB: {
+  code: 'PGRST204',
+  details: null,
+  hint: null,
+  message: "Could not find the 'resend_id' column of 'email_sends' in the schema cache"
+}
+[SAF Sequence] Sent Phase 1/5 to 02bee9bb-6509-4aad-92aa-962222678d1b via myelvoraconsulting.org
+Failed to log email_send in DB: {
+  code: 'PGRST204',
+  details: null,
+  hint: null,
+  message: "Could not find the 'resend_id' column of 'email_sends' in the schema cache"
+}
+[SAF Sequence] Sent Phase 1/5 to 4b4c798c-3a02-487a-bf7f-6a547bfee9ce via myelvoraconsulting.org
+Failed to log email_send in DB: {
+  code: 'PGRST204',
+  details: null,
+  hint: null,
+  message: "Could not find the 'resend_id' column of 'email_sends' in the schema cache"
+}
+[SAF Sequence] Sent Phase 1/5 to 8002d27c-4387-41e0-9cdc-76547081d8e5 via myelvoraconsulting.org
+Failed to log email_send in DB: {
+  code: 'PGRST204',
+  details: null,
+  hint: null,
+  message: "Could not find the 'resend_id' column of 'email_sends' in the schema cache"
+}
+[SAF Sequence] Sent Phase 1/5 to fedb156c-0861-47ea-a8c3-cf4972c06829 via myelvoraconsulting.org
+Failed to log email_send in DB: {
+  code: 'PGRST204',
+  details: null,
+  hint: null,
+  message: "Could not find the 'resend_id' column of 'email_sends' in the schema cache"
+}
+[SAF Sequence] Sent Phase 1/5 to 630f0daa-26b8-4975-b3c4-29445660d87f via myelvoraconsulting.org
+Failed to log email_send in DB: {
+  code: 'PGRST204',
+  details: null,
+  hint: null,
+  message: "Could not find the 'resend_id' column of 'email_sends' in the schema cache"
+}
+[SAF Sequence] Sent Phase 1/5 to 26cf35b8-53f0-40c5-aad6-61364da94dfe via myelvoraconsulting.org
+Failed to log email_send in DB: {
+  code: 'PGRST204',
+  details: null,
+  hint: null,
+  message: "Could not find the 'resend_id' column of 'email_sends' in the schema cache"
+}
+[SAF Sequence] Sent Phase 1/5 to acfebcdb-f6a9-4785-a4ef-3de98fc2b041 via myelvoraconsulting.org
+Failed to log email_send in DB: {
+  code: 'PGRST204',
+  details: null,
+  hint: null,
+  message: "Could not find the 'resend_id' column of 'email_sends' in the schema cache"
+}
+[SAF Sequence] Sent Phase 1/5 to 0d566b0a-6b4b-4c67-9285-5d3c505c60ff via myelvoraconsulting.org
+[SAF Sequence] Complete. 15/15 sent.
+ GET /api/cron/campaigns/saf 200 in 7.6s (compile: 309ms, render: 7.3s)
+[?25h

@@ -74,9 +74,9 @@ export const resolveRole = (lead: LeadConfig): ContactRole => {
   return 'other';
 };
 
-const BOOKING_URL = 'https://outlook.office.com/bookwithme/user/e97f487ef98b49689b66cfc0528a60aa@elvoraconsulting.co.uk?anonymous&ep=pcard';
+const BOOKING_URL = 'https://{{SENDING_DOMAIN}}/api/book';
 const PHONE = '0115 646 8587';
-const LOGO_URL = 'https://elvoraconsulting.co.uk/icon.png';
+const LOGO_URL = 'https://{{SENDING_DOMAIN}}/icon.png';
 
 export const getSignatureHTML = (config: { name?: string; role?: string; phone?: string; email?: string; }) => {
   const name = config.name || 'Melissa Meakin';
@@ -90,8 +90,8 @@ export const getSignatureHTML = (config: { name?: string; role?: string; phone?:
         <p style="margin: 0; font-size: 12px; color: #00938a; text-transform: uppercase; letter-spacing: 1px;">${role}</p>
         <table style="margin-top: 10px; font-size: 12px;">
           <tr><td style="font-weight: bold; padding-right: 10px;">T:</td><td>${phone}</td></tr>
-          <tr><td style="font-weight: bold; padding-right: 10px;">E:</td><td><a href="mailto:${email}" style="color: #00938a; text-decoration: none;">${email}</a></td></tr>
-          <tr><td style="font-weight: bold; padding-right: 10px;">W:</td><td><a href="https://elvoraconsulting.co.uk" style="color: #00938a; text-decoration: none;">elvoraconsulting.co.uk</a></td></tr>
+          <tr><td style="font-weight: bold; padding-right: 10px;">E:</td><td style="color: #00938a;">${email}</td></tr>
+          <tr><td style="font-weight: bold; padding-right: 10px;">W:</td><td><a href="https://{{SENDING_DOMAIN}}" style="color: #00938a; text-decoration: none;">www.elvoraconsulting.co.uk</a></td></tr>
         </table>
       </td></tr></table>`;
 };
