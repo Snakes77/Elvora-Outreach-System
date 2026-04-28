@@ -41,13 +41,16 @@ export async function GET(request: Request) {
     try {
         console.log('[SAF Sequence] Booting isolated SAF Sequence Runner...');
 
+        const endOfToday = new Date();
+        endOfToday.setUTCHours(23, 59, 59, 999);
+
         const { data: leads, error: fetchError } = await supabaseAdmin
             .from('leads')
             .select('*')
             .eq('status', 'active')
             .eq('email_enrichment_status', 'found')
             .eq('campaign_type', '5_week_saf_campaign') // STRICT ISOLATION FILTER
-            .lte('next_step_date', new Date().toISOString())
+            .lte('next_step_date', endOfToday.toISOString())
             .limit(15); // Stagger sending for smooth delivery across the hour
 
         if (fetchError) {
