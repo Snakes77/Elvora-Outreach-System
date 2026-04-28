@@ -83,7 +83,7 @@ export async function GET(request: Request) {
                     if (contact.personGivenName && contact.personFamilyName) {
                         const fullName = `${contact.personGivenName} ${contact.personFamilyName}`;
                         if (!targetMap.has(fullName)) {
-                            targetMap.set(fullName, { name: fullName, role: contact.personRole || 'Registered Manager' });
+                            targetMap.set(fullName, { name: fullName, role: (contact as any).personRole || 'Registered Manager' });
                         }
                     }
                 }
@@ -99,7 +99,7 @@ export async function GET(request: Request) {
                         if (contact.personGivenName && contact.personFamilyName) {
                             const fullName = `${contact.personGivenName} ${contact.personFamilyName}`;
                             if (!targetMap.has(fullName)) {
-                                targetMap.set(fullName, { name: fullName, role: contact.personRole || 'Manager' });
+                                targetMap.set(fullName, { name: fullName, role: (contact as any).personRole || 'Manager' });
                             }
                         }
                     }
